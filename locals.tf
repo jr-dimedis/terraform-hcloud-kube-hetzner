@@ -108,7 +108,8 @@ locals {
     ]
   })
 
-  apply_k3s_selinux = ["/sbin/semodule -v -i /usr/share/selinux/packages/k3s.pp"]
+  # @fixme SELinux for Ubuntu
+  apply_k3s_selinux = ["if test -e /usr/share/selinux/packages/k3s.pp; then /sbin/semodule -v -i /usr/share/selinux/packages/k3s.pp; fi"]
   swap_node_label   = ["node.kubernetes.io/server-swap=enabled"]
 
   k3s_install_command = "curl -sfL https://get.k3s.io | INSTALL_K3S_SKIP_START=true INSTALL_K3S_SKIP_SELINUX_RPM=true %{if var.install_k3s_version == ""}INSTALL_K3S_CHANNEL=${var.initial_k3s_channel}%{else}INSTALL_K3S_VERSION=${var.install_k3s_version}%{endif} INSTALL_K3S_EXEC='%s' sh -"
