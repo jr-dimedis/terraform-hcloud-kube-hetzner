@@ -23,6 +23,12 @@ variable "microos_arm_snapshot_id" {
   default     = ""
 }
 
+variable "ubuntu_image" {
+  description = "Ubuntu image to be used."
+  type        = string
+  default     = "ubuntu-24.04"
+}
+
 variable "ssh_port" {
   description = "The main SSH port to connect to the nodes."
   type        = number
@@ -203,6 +209,7 @@ variable "control_plane_nodepools" {
   description = "Number of control plane nodes."
   type = list(object({
     name                       = string
+    os                         = string
     server_type                = string
     location                   = string
     backups                    = optional(bool)
@@ -236,6 +243,7 @@ variable "agent_nodepools" {
   description = "Number of agent nodes."
   type = list(object({
     name                       = string
+    os                         = string
     server_type                = string
     location                   = string
     backups                    = optional(bool)
@@ -1341,7 +1349,6 @@ variable "keep_disk_cp" {
   default     = false
   description = "Whether to keep OS disks of nodes the same size when upgrading a control-plane node"
 }
-
 
 variable "sys_upgrade_controller_version" {
   type        = string
