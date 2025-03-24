@@ -256,11 +256,19 @@ resource "null_resource" "os_upgrade_toggle" {
     inline = [
       <<-EOT
       if [ "${var.automatically_upgrade_os}" = "true" ]; then
-        echo "automatically_upgrade_os changed to true, enabling transactional-update.timer"
-        systemctl enable --now transactional-update.timer || true
+        if [ "${var.os}" = "ubuntu" ]; then
+          echo "for now Ubuntu always upgrades OS automatically"
+        else
+          echo "automatically_upgrade_os changed to true, enabling transactional-update.timer"
+          systemctl enable --now transactional-update.timer || true
+        fi
       else
-        echo "automatically_upgrade_os changed to false, disabling transactional-update.timer"
-        systemctl disable --now transactional-update.timer || true
+        if [ "${var.os}" = "ubuntu" ]; then
+          echo "for now Ubuntu always upgrades OS automatically"
+        else
+          echo "automatically_upgrade_os changed to false, disabling transactional-update.timer"
+          systemctl disable --now transactional-update.timer || true
+        fi
       fi
       EOT
     ]
