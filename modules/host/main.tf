@@ -144,7 +144,7 @@ data "cloudinit_config" "config" {
     filename     = "init.cfg"
     content_type = "text/cloud-config"
     content = templatefile(
-      "${path.module}/templates/cloudinit.${var.os}.yaml.tpl",
+      "${path.module}/templates/${var.os == "microos" ? "cloudinit.yaml.tpl" : "cloudinit.${var.os}.yaml.tpl"}",
       {
         hostname                     = local.name
         dns_servers                  = var.dns_servers
