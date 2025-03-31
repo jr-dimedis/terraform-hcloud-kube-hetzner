@@ -16,6 +16,16 @@ write_files:
 
 ${cloudinit_write_files_common}
 
+- path: /etc/netplan/60-my-private-network.yaml
+  permissions: "0600"
+  content: |
+    network:
+      version: 2
+      renderer: networkd
+      ethernets:
+        eth1:
+          dhcp4: true
+
 # Apply DNS config
 %{ if has_dns_servers ~}
 manage_resolv_conf: true
@@ -32,11 +42,6 @@ ssh_authorized_keys:
   - ${key}
 %{ endfor ~}
 
-# Resize /var, not /, as that's the last partition in MicroOS image.
-# @fixme growpart
-# growpart:
-#  devices: ["/var"]
-
 # Make sure the hostname is set correctly
 hostname: ${hostname}
 preserve_hostname: true
@@ -45,6 +50,9 @@ runcmd:
 
 ${cloudinit_runcmd_common}
 
+- apt remove -y hc-utils
+- netplan generate
+- netplan apply
 - sed -i 's/#PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
 - sed -i 's/#PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
 - systemctl restart ssh
