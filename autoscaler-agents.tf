@@ -164,7 +164,7 @@ data "hcloud_servers" "autoscaled_nodes" {
 resource "null_resource" "autoscaled_nodes_registries" {
   for_each = local.autoscaled_nodes
   triggers = {
-    registries = var.k3s_registries
+    registries = local.registries_yaml
   }
 
   connection {
@@ -176,7 +176,7 @@ resource "null_resource" "autoscaled_nodes_registries" {
   }
 
   provisioner "file" {
-    content     = var.k3s_registries
+    content     = local.registries_yaml
     destination = "/tmp/registries.yaml"
   }
 

@@ -1137,6 +1137,35 @@ variable "k3s_autoscaler_kubelet_args" {
   description = "Kubelet args for autoscaler nodes."
 }
 
+variable "enable_embedded_registry" {
+  type        = bool
+  default     = false
+  description = "Enable k3s embedded registry mirror (Spegel) for peer-to-peer image sharing."
+}
+
+variable "spegel_registries" {
+  type        = list(string)
+  default     = ["docker.io", "registry.k8s.io"]
+  description = "List of registries to enable for distributed mirroring via Spegel. Use ['*'] for all registries."
+}
+
+variable "spegel_p2p_port" {
+  type        = number
+  default     = 5001
+  description = "Port for Spegel peer-to-peer communication. Must be the same on all nodes."
+
+  validation {
+    condition     = var.spegel_p2p_port >= 1024 && var.spegel_p2p_port <= 65535
+    error_message = "The Spegel P2P port must be in the range 1024-65535."
+  }
+}
+
+variable "spegel_enable_latest_tag" {
+  type        = bool
+  default     = false
+  description = "Enable mirroring of 'latest' tags via Spegel (not recommended for production)."
+}
+
 variable "ingress_target_namespace" {
   type        = string
   default     = ""

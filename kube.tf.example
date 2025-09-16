@@ -668,6 +668,24 @@ module "kube-hetzner" {
           password: password
   EOT */
 
+  # Spegel (Embedded Registry Mirror) configuration
+  # Enable k3s embedded registry mirror for peer-to-peer image sharing between cluster nodes.
+  # This reduces external registry traffic and improves image pull performance.
+  # More info: https://docs.k3s.io/installation/registry-mirror
+  # enable_embedded_registry = true
+
+  # List of registries to enable for distributed mirroring via Spegel.
+  # Use ["*"] to enable mirroring for all registries (requires quoting the asterisk).
+  # spegel_registries = ["docker.io", "registry.k8s.io", "ghcr.io"]
+
+  # Port for Spegel peer-to-peer communication (default: 5001).
+  # Must be the same on all nodes. Only change if port 5001 conflicts with other services.
+  # spegel_p2p_port = 5001
+
+  # Enable mirroring of 'latest' tags via Spegel (not recommended for production).
+  # When disabled (default), latest tags are always pulled from upstream registries.
+  # spegel_enable_latest_tag = false
+
   # Additional environment variables for the host OS on which k3s runs. See for example https://docs.k3s.io/advanced#configuring-an-http-proxy .
   # additional_k3s_environment = {
   #   "CONTAINERD_HTTP_PROXY" : "http://your.proxy:port",
