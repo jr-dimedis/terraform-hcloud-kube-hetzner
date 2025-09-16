@@ -23,7 +23,7 @@ module "agents" {
   backups                          = each.value.backups
   ipv4_subnet_id                   = hcloud_network_subnet.agent[[for i, v in var.agent_nodepools : i if v.name == each.value.nodepool_name][0]].id
   dns_servers                      = var.dns_servers
-  k3s_registries                   = var.k3s_registries
+  k3s_registries                   = local.registries_yaml
   k3s_registries_update_script     = local.k3s_registries_update_script
   cloudinit_write_files_common     = each.value.os == "microos" ? local.cloudinit_write_files_common : local.ubuntu_cloudinit_write_files_common
   k3s_kubelet_config               = var.k3s_kubelet_config

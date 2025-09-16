@@ -29,7 +29,7 @@ locals {
 
   additional_k3s_environment = join("\n",
     [
-      for var_name, var_value in var.additional_k3s_environment :
+      for var_name, var_value in merge(var.additional_k3s_environment, local.spegel_environment_vars) :
       "${var_name}=\"${var_value}\""
     ]
   )
@@ -505,7 +505,16 @@ locals {
         port        = ""
         source_ips  = ["0.0.0.0/0", "::/0"]
       }
-    ]
+    ],
+    var.enable_embedded_registry ? [
+      {
+        description = "Allow Spegel P2P Communication"
+        direction   = "in"
+        protocol    = "tcp"
+        port        = tostring(var.spegel_p2p_port)
+        source_ips  = [var.network_ipv4_cidr]
+      }
+    ] : []
   )
 
   # create a new firewall list based on base_firewall_rules but with direction-protocol-port as key
@@ -537,6 +546,23 @@ locals {
   labels_agent_node = {
     role = "agent_node"
   }
+
+  # Spegel (Embedded Registry Mirror) configuration
+  registries_yaml = var.enable_embedded_registry ? yamlencode(merge(
+    var.k3s_registries != "" ? yamldecode(var.k3s_registries) : {},
+    {
+      mirrors = { for registry in var.spegel_registries : registry => {} }
+    }
+  )) : var.k3s_registries
+
+  spegel_server_config = var.enable_embedded_registry ? {
+    embedded-registry = true
+  } : {}
+
+  spegel_environment_vars = var.enable_embedded_registry ? merge(
+    var.spegel_p2p_port != 5001 ? { "K3S_P2P_PORT" = tostring(var.spegel_p2p_port) } : {},
+    var.spegel_enable_latest_tag ? { "K3S_P2P_ENABLE_LATEST" = "true" } : {}
+  ) : {}
 
   cni_install_resources = {
     "calico" = ["https://raw.githubusercontent.com/projectcalico/calico/${coalesce(local.calico_version, "v3.27.2")}/manifests/calico.yaml"]
