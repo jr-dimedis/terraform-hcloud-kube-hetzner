@@ -56,9 +56,8 @@ resource "hcloud_load_balancer_target" "cluster" {
   load_balancer_id = hcloud_load_balancer.cluster.*.id[0]
   label_selector = join(",", concat(
     [for k, v in local.labels : "${k}=${v}"],
-    [
-      # Generic label merge from control plane and agent namespaces with "or",
-      # resulting in: role in (control_plane_node,agent_node)
+    var.allow_scheduling_on_control_plane ? [
+      # Include both control plane and agent nodes when scheduling on control plane is allowed
       for key in keys(merge(local.labels_control_plane_node, local.labels_agent_node)) :
       "${key} in (${
         join(",", compact([
@@ -66,6 +65,9 @@ resource "hcloud_load_balancer_target" "cluster" {
           try(labels[key], "")
         ]))
       })"
+    ] : [
+      # Include only agent nodes when scheduling on control plane is disabled
+      for k, v in local.labels_agent_node : "${k}=${v}"
     ]
   ))
   use_private_ip = true
