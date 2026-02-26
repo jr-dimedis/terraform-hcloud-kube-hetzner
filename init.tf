@@ -49,7 +49,7 @@ resource "hcloud_load_balancer_network" "cluster" {
 }
 
 resource "hcloud_load_balancer_target" "cluster" {
-  count = local.has_external_load_balancer ? 0 : 1
+  count = local.skip_lb_target_creation ? 0 : 1
 
   depends_on       = [hcloud_load_balancer_network.cluster]
   type             = "label_selector"

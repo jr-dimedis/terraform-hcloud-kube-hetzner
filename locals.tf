@@ -366,6 +366,11 @@ locals {
   has_external_load_balancer = local.using_klipper_lb || var.ingress_controller == "none"
   load_balancer_name         = "${var.cluster_name}-${var.ingress_controller}"
 
+  # CCM v1.25.0+ (heuristic determination) automatically manages load balancer targets for Service
+  # type LoadBalancer, making the static Terraform-managed load balancer target redundant and
+  # potentially conflicting. This only affects the target creation, not the load balancer itself.
+  skip_lb_target_creation = local.has_external_load_balancer || provider::semvers::compare(local.ccm_version, "1.25.0") >= 0
+
   ingress_controller_service_names = {
     "traefik" = "traefik"
     "nginx"   = "nginx-ingress-nginx-controller"
